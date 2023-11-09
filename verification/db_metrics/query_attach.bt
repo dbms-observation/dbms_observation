@@ -1,0 +1,30 @@
+uprobe:/usr/sbin/mysqld:*dispatch_command*
+{
+    $COM_QUERY = 3;
+    if(arg2 == $COM_QUERY){
+        @query[tid] = str(*arg1);
+        @start[tid] = nsecs;
+    }
+}
+
+uretprobe:/usr/sbin/mysqld:*dispatch_command*
+/@start[tid]/
+{
+    $dur = (nsecs-@start[tid]) ;
+    printf("%6d %s\n", $dur, @query[tid]);
+    delete(@query[tid]);
+    delete(@start[tid]);
+}
+
+
+uprobe:/usr/sbin/mysqld:*optimize*
+{
+    @start4[tid] = nsecs;
+}
+
+uretprobe:/usr/sbin/mysqld:*optimize*
+/@start4[tid]/
+{
+    printf("%s %d\n", probe, (nsecs-@start4[tid]));
+    delete(@start4[tid]);
+}

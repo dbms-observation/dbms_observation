@@ -1,0 +1,22 @@
+BEGIN
+{
+    printf("Tracing sock count.\n");
+}
+
+tracepoint:syscalls:sys_enter_accept*,
+tracepoint:syscalls:sys_enter_connect,
+tracepoint:syscalls:sys_enter_bind,
+tracepoint:syscalls:sys_enter_socket*,
+kprobe:sock_recvmsg,
+kprobe:sock_sendmsg
+{
+    @[probe] = count();
+}
+
+interval:s:1
+{
+    time();
+    print(@);
+    clear(@);
+}
+

@@ -1,0 +1,15 @@
+#include <linux/fs.h>
+#include <net/sock.h>
+
+kprobe:sock_recvmsg,
+kprobe:sock_sendmsg
+{
+    @socket[tid] = arg0;
+}
+
+kretprobe:sock_recvmsg
+{
+    if(retval < 0x7fffffff) {
+        @read_bytes[comm] = 
+    }
+}
